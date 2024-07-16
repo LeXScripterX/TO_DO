@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mi To Do{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-blue-100">
+    <header class="bg-green-700 text-white py-4">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-3xl font-bold p-2">{% block header %}To-Do{% endblock %}</h1>
+                {% if request.user.is_authenticated %}
+                <div class="flex items-center">
+                    {% if request.user.profile.profile_image %}
+                    <img src="{{ request.user.profile.profile_image.url }}" alt="Imagen de perfil"
+                        class="rounded-full w-10 h-10 mr-2"> {% endif %}
+                    <strong class="font-bold text-white py-2 px-4">Hola, {{ request.user.username }}!</strong>
+                    <a class="text-white px-3 py-2 rounded hover:bg-red-500" href="{% url 'logout' %}">Cerrar Sesión</a>
+                </div>
+                {% else %}
+                <ul class="flex">
+                    <li>
+                        <a class="text-white px-3 py-2 rounded hover:bg-green-400" href="{% url 'login' %}">Iniciar
+                            Sesión</a>
+                    </li>
+                    <li>
+                        <a class="text-white px-3 py-2 rounded hover:bg-green-400"
+                            href="{% url 'signup' %}">Registrarse</a>
+                    </li>
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <nav class="bg-green-600 text-white py-2">
+        <div class="max-w-7xl mx-auto px-4">
+            <ul class="flex">
+                <li>
+                    <a class="text-white px-3 py-2 rounded hover:bg-green-400" href="{% url 'index' %}">Inicio</a>
+                </li>
+                <li>
+                    <a class="text-white px-3 py-2 rounded hover:bg-green-400" href="{% url 'task-list' %}">Lista de
+                        Tareas</a>
+                </li>
+                {% if request.user.is_authenticated %}
+                <li>
+                    <a class="text-white px-3 py-2 rounded hover:bg-green-400" href="{% url 'create-task' %}">Crear
+                        Tarea</a>
+                </li>
+                <li>
+                    <a class="text-white px-3 py-2 rounded hover:bg-green-400" href="{% url 'profile' %}">Perfil</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container mx-auto py-4 px-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-green-700 text-white mt-24 py-3">
+        <div class="text-center">
+            <p class="mb-0">© {% now "Y" %} Mi Proyecto</p>
+        </div>
+    </footer>
+</body>
+
+</html>

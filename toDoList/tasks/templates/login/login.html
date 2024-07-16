@@ -1,0 +1,12 @@
+<!-- login.html -->
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Iniciar Sesión</button>
+  </form>
+  
+  <!-- logged_out.html -->
+  <p>Has cerrado sesión.</p>
+  <a href="{% url 'login' %}">Iniciar Sesión</a>
+
+  

@@ -1,0 +1,80 @@
+{% extends "base.html" %} {% block content %}
+<style>
+    * {
+        padding: 0;
+        margin: 0;
+    }
+
+    :root {
+        --bg-color: #f9fafb;
+        --text-color: #374151;
+        --border-color: #e5e7eb;
+        --primary-color: #0070f3;
+    }
+
+    @media (max-width: 768px) {
+        h1 {
+            font-size: 2.5rem;
+        }
+    }
+
+    .container {
+        background-image: url('https://i.pinimg.com/564x/68/91/7a/68917a44f50c33a388e945bde3c36830.jpg');
+        background-size: auto;
+        background-position: center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        min-height: 500px;
+        background-color: #273c52;
+        position: relative;
+    }
+
+    .welcome-text {
+        position: fixed;
+        top: 20%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 3rem;
+    }
+</style>
+
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center text-xs">
+        {% if request.user.is_authenticated %}
+        <div class="text-sm bg-green-100 border  py-3 px-4 rounded">
+            <strong class="text-base text-green-400">Hola, {{ request.user.username }}!</strong> Estás autenticado.
+        </div>
+        <div>
+            <!-- <a href="{% url 'logout' %}" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+                Cerrar Sesión
+            </a> -->
+        </div>
+        {% else %}
+        <div class="text-sm bg-blue-100 border bg-gray-500  border-blue-400 text-blue-700 py-3 px-4 rounded">
+            No has iniciado sesión.
+        </div>
+        <!-- Comentario opcional para futuras extensiones
+        <div>
+            <a href="{% url 'login' %}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                Iniciar Sesión
+            </a>
+            <a href="{% url 'signup' %}" class="ml-2 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+                Registrarse
+            </a>
+        </div> -->
+        {% endif %}
+    </div>
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="mt-8 text-center text-4xl font-extrabold text-green-400   "
+            style="margin-bottom: 1rem; padding-top: 1rem;">
+            ¡Bienvenido a Nuestro To-Do!
+        </h1>
+    </div>
+    <p class="mt-4 text-center text-lg text-white p-36">
+        <span class="block sm:inline">Estamos encantados de tenerte aquí. Explora, descubre y disfruta de todo lo que
+            hemos
+            preparado para ti.</span>
+    </p>
+</div>
+{% endblock %}
