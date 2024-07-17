@@ -1,63 +1,74 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, authenticate
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth import login 
+from django.contrib.auth.forms import AuthenticationForm
+from django.urls import reverse_lazy
+from django.views import View
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Task
-from .forms import TaskForm
+from .forms import TaskForm, SignupForm
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth import views as auth_views
 
+class TaskListView(LoginRequiredMixin, ListView):
+    model = Task
+    template_name = 'tasks/task_list.html'
+    context_object_name = 'tasks'
 
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return Task.objects.all()
+        return Task.objects.filter(user=self.request.user)
 
-def index(request):
-    """Vista para la página de inicio."""
-    return render(request, 'tasks/index.html')
+class TaskDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = Task
+    template_name = 'tasks/task_detail.html'
 
-def task_list(request):
-    tasks = Task.objects.filter(user=request.user)
-    return render(request, 'tasks/task_list.html', {'tasks': tasks})
+    def test_func(self):
+        task = self.get_object()
+        return self.request.user == task.user or self.request.user.is_superuser
 
-def task_create(request):
-    if request.method == 'POST':
-        form = TaskForm(request.POST)
-        if form.is_valid():
-            task = form.save(comit=False)
-            task.user = request.user
-            task.save()
-            return redirect('task_list')
-        
-        else:
-            form = TaskForm()
-        return render(request, 'tasks/task_form.html', {'form': form})
-    
+class TaskCreateView(LoginRequiredMixin, CreateView):
+    model = Task
+    form_class = TaskForm
+    template_name = 'tasks/task_form.html'
+    success_url = reverse_lazy('task_list')
 
-def task_edit(request, pk):
-    task = Task.objects.get(pk=pk, user=request.user)
-    if request.method == 'POST':
-         form = TaskForm(request.POST, instance=task)
-         if form.is_valid():            form.save()
-         return redirect('task_list')
-    else:
-        form = TaskForm(instance=task)
-        return render(request, 'tasks/task_form.html', {'form': form})
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
 
-def task_delete(request, pk):
-    task = Task.objects.get(pk=pk, user=request.user)
-    if request.method == 'POST':
-        task.delete()
-        return redirect('task_list')
-    return render(request, 'tasks/task_confirm_delete.html', {'task': task})
+class TaskUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Task
+    form_class = TaskForm
+    template_name = 'tasks/task_form.html'
+    success_url = reverse_lazy('task_list')
 
-def signup(request):
-    """Registrar un nuevo usuario."""
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
-            return redirect('index')
-    else:
-        form = UserCreationForm()
-    return render(request, 'registration/signup.html', {'form': form})
+    def test_func(self):
+        task = self.get_object()
+        return self.request.user == task.user or self.request.user.is_superuser
+
+class TaskDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Task
+    template_name = 'tasks/task_confirm_delete.html'
+    success_url = reverse_lazy('task_list')
+
+    def test_func(self):
+        task = self.get_object()
+        return self.request.user == task.user or self.request.user.is_superuser
+
+class SignupView(CreateView):
+    template_name = 'login/signup.html'
+    form_class = SignupForm
+    success_url = reverse_lazy('task_list')
+
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        return redirect(self.success_url)
+
+class LoginView(auth_views.LoginView):
+    template_name = 'login/login.html'
+
+class IndexView(View):
+    def get(self, request):
+        return render(request, 'index.html')

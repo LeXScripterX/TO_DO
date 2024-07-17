@@ -1,12 +1,29 @@
-<!-- login.html -->
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Iniciar Sesión</button>
-  </form>
-  
-  <!-- logged_out.html -->
-  <p>Has cerrado sesión.</p>
-  <a href="{% url 'login' %}">Iniciar Sesión</a>
-
-  
+{% extends "base.html" %} {% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white text-center py-3">
+                    <h2 class="mb-0 font-weight-bold">Iniciar Sesión</h2>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ form.as_p }}
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block w-100 py-2">
+                Iniciar Sesión
+              </button>
+                    </form>
+                </div>
+                <div class="card-footer bg-white text-center py-3">
+                    <a href="{% url 'signup' %}" class="text-primary">
+              ¿No tienes una cuenta? Registrarse
+            </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
